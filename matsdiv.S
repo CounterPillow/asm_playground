@@ -1,8 +1,12 @@
 #include "asm.S"
 
+/* Previous version, which used fmul with a reciprocal divisor
+ * Slower than the new version.
+ */
 function mat4x4sdiv, export=1, align=4
-    // calculate 1 / divisor, for later
-    // do not use s1 or whatever here, we'd stomp on v1
+    /* calculate 1 / divisor, for later
+     * do not use s1 or whatever here, we'd stomp on v1
+     */
     fmov s8, #1.0
     fdiv s0, s8, s0
 
@@ -20,6 +24,6 @@ function mat4x4sdiv, export=1, align=4
     fmul v2.4S, v1.4S, v0.4S[0]
     fmul v3.4S, v1.4S, v0.4S[0]
     fmul v4.4S, v1.4S, v0.4S[0]
-    // write them back to memory
+    /* write them back to memory */
     st4 {v1.4S, v2.4S, v3.4S, v4.4S}, [x0]
 endfunc
