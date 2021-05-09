@@ -19,8 +19,6 @@ void pg_printmat(float mat[4][4])  {
 }
 
 int main(int argc, char** argv) {
-    float bar = 4.0;
-    float foo = 1.0 / bar;
     float m[4][4] = {{1.1, 1.2, 1.3, 1.4},
                      {2.1, 2.2, 2.3, 2.4},
                      {3.1, 3.2, 3.3, 3.4},

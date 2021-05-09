@@ -11,7 +11,11 @@ function mat4x4sdiv, export=1, align=4
      * i.e. a whole ass 512 bits?
      */
     ld4 {v1.4S, v2.4S, v3.4S, v4.4S}, [x0]
-    // multiply each of those with our inverted divisor
+    /* multiply each of those with our inverted divisor
+     * s0 is just an alias for the first 32-bit scalar of v0
+     * .4S -> it's 4 32-bit scalars, [0] -> take the first
+     * we can't use s0 here because... thanks assembler?
+     */
     fmul v1.4S, v1.4S, v0.4S[0]
     fmul v2.4S, v1.4S, v0.4S[0]
     fmul v3.4S, v1.4S, v0.4S[0]
