@@ -6,10 +6,9 @@ CC ?= cc
 
 ifeq ($(USE_ASM),1)
 	OBJS = $(C_OBJS) $(ASM_OBJS)
-	CFLAGS = -O3
 else
 	OBJS = $(C_OBJS)
-	CFLAGS = -O3 -DNO_ASM
+	CFLAGS = -DNO_ASM
 endif
 
 playground: $(OBJS)

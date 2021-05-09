@@ -20,6 +20,8 @@ void pg_printmat(float mat[4][4])  {
 }
 
 int main(int argc, char** argv) {
+
+    __attribute__((aligned(64)))
     float m[4][4] = {{1.1, 1.2, 1.3, 1.4},
                      {2.1, 2.2, 2.3, 2.4},
                      {3.1, 3.2, 3.3, 3.4},
@@ -33,6 +35,7 @@ int main(int argc, char** argv) {
         for(int i = 1; i < 10000000; i++) {
             pg_mat4x4sdiv(m, 2.0);
         }
+        pg_printmat(m);
 #ifndef NO_ASM
     } else if(strcmp("2", argv[1]) == 0) {
         pg_mat4x4sdiv_dup(m, 2.0);
@@ -40,7 +43,8 @@ int main(int argc, char** argv) {
         for(int i = 1; i < 10000000; i++) {
             pg_mat4x4sdiv_dup(m, 2.0);
         }
-    }
+        pg_printmat(m);
 #endif
+    }
     return 0;
 }
