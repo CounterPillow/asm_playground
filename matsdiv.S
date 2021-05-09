@@ -5,10 +5,10 @@
  */
 function mat4x4sdiv, export=1, align=4
     /* calculate 1 / divisor, for later
-     * do not use s1 or whatever here, we'd stomp on v1
+     * using s1 is fine because it's not needed until ld4
      */
-    fmov s8, #1.0
-    fdiv s0, s8, s0
+    fmov s1, #1.0
+    fdiv s0, s1, s0
 
     /* main calculation begins here.
      * We load four four-element 32-bit vectors from x0,
