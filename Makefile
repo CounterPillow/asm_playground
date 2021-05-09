@@ -1,15 +1,9 @@
 C_OBJS = main.o
 ASM_OBJS = asm.o matsdiv.o matsdiv_dup.o
-USE_ASM ?= 0
-
+OBJS = $(C_OBJS) $(ASM_OBJS)
 CC ?= cc
+CFLAGS = -O2
 
-ifeq ($(USE_ASM),1)
-	OBJS = $(C_OBJS) $(ASM_OBJS)
-else
-	OBJS = $(C_OBJS)
-	CFLAGS = -DNO_ASM
-endif
 
 playground: $(OBJS)
 	$(CC) -g -o $@ $^
