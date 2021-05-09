@@ -6,11 +6,10 @@ AArch64 assembly, specifically NEON SIMD.
 
 ## Compiling
 
-to build the C variant:
+to build:
 
     make
 
-to build the AArch64 assembly variant:
+## Running
 
-    make USE_ASM=1
-
+    ./playground
