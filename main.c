@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {
         return -1;
     }
-    if(strcmp("1", argv[1]) == 0) {
+    if(strncmp("1", argv[1], 1) == 0) {
         pg_mat4x4sdiv(m, 2.0);
         pg_printmat(m);
         for(int i = 1; i < 10000000; i++) {
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
         }
         pg_printmat(m);
 #ifndef NO_ASM
-    } else if(strcmp("2", argv[1]) == 0) {
+    } else if(strncmp("2", argv[1], 1) == 0) {
         pg_mat4x4sdiv_dup(m, 2.0);
         pg_printmat(m);
         for(int i = 1; i < 10000000; i++) {

@@ -1,7 +1,7 @@
 #include "asm.S"
 
 /* Previous version, which used fmul with a reciprocal divisor
- * Slower than the new version.
+ * Faster than the new version
  */
 function mat4x4sdiv, export=1, align=4
     /* calculate 1 / divisor, for later
@@ -21,9 +21,10 @@ function mat4x4sdiv, export=1, align=4
      * we can't use s0 here because... thanks assembler?
      */
     fmul v1.4S, v1.4S, v0.4S[0]
-    fmul v2.4S, v1.4S, v0.4S[0]
-    fmul v3.4S, v1.4S, v0.4S[0]
-    fmul v4.4S, v1.4S, v0.4S[0]
+    fmul v2.4S, v2.4S, v0.4S[0]
+    fmul v3.4S, v3.4S, v0.4S[0]
+    fmul v4.4S, v4.4S, v0.4S[0]
     /* write them back to memory */
     st4 {v1.4S, v2.4S, v3.4S, v4.4S}, [x0]
+    ret
 endfunc
