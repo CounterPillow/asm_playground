@@ -11,6 +11,7 @@
 #define MAX_MATRICES 30000
 // reduces matrix to 0 if set too high, making the check at the end pointless
 #define REPETITIONS 20
+#define MATMUL_REPETITIONS 100
 
 #define EPSILON 0.000001
 
@@ -161,7 +162,7 @@ bool test_matmul() {
     printf(" done!\n");
 
     clock_t start = clock();
-    for(int i = 0; i < MAX_MATRICES / 2 * REPETITIONS; i++) {
+    for(int i = 0; i < MAX_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
         pg_mat4x4mul_c(A[0][i % (MAX_MATRICES / 2)], B[0][i % (MAX_MATRICES / 2)],
                        res[0][i % (MAX_MATRICES / 2)]);
     }
@@ -169,7 +170,7 @@ bool test_matmul() {
     printf("matmul C test complete\n");
 
     start = clock();
-    for(int i = 0; i < MAX_MATRICES / 2 * REPETITIONS; i++) {
+    for(int i = 0; i < MAX_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
         pg_mat4x4mul(A[1][i % (MAX_MATRICES / 2)], B[1][i % (MAX_MATRICES / 2)],
                      res[1][i % (MAX_MATRICES / 2)]);
     }
