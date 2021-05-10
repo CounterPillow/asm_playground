@@ -96,9 +96,9 @@ bool test_matsdiv() {
     printf("matsdiv C test complete\n");
 
     printf("matsdiv elapsed time:\n");
-    printf("fmul = %d, %.3fx faster than C\n", elapsed_1, (float) elapsed_3 / (float) elapsed_1);
-    printf("fdiv = %d, %.3fx faster than C\n", elapsed_2, (float) elapsed_3 / (float) elapsed_2);
-    printf("C = %d\n", elapsed_3);
+    printf("fmul = %ld, %.3fx faster than C\n", elapsed_1, (float) elapsed_3 / (float) elapsed_1);
+    printf("fdiv = %ld, %.3fx faster than C\n", elapsed_2, (float) elapsed_3 / (float) elapsed_2);
+    printf("C = %ld\n", elapsed_3);
 
     bool fucked[2] = {false, false};
     for(int i = 0; i < MAX_MATRICES; i++) {
@@ -175,8 +175,8 @@ bool test_matmul() {
     }
     clock_t elapsed_simd = clock() - start;
     printf("matmul elapsed time:\n");
-    printf("simd = %d, %.3fx faster than C\n", elapsed_simd, (float) elapsed_c / (float) elapsed_simd);
-    printf("C = %d\n", elapsed_c);
+    printf("simd = %ld, %.3fx faster than C\n", elapsed_simd, (float) elapsed_c / (float) elapsed_simd);
+    printf("C = %ld\n", elapsed_c);
 
     bool p = true;
     for(int i = 0; i < MAX_MATRICES / 2; i++) {
