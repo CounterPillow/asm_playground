@@ -2,6 +2,7 @@ C_OBJS = main.o
 ASM_OBJS = asm.o matsdiv.o matsdiv_dup.o matmul.o
 OBJS = $(C_OBJS) $(ASM_OBJS)
 CC ?= cc
+CCAS ?= gcc
 CFLAGS = -O2
 
 
@@ -12,7 +13,7 @@ main.o:	main.c main.h
 	$(CC) -g -c main.c $(CFLAGS)
 
 %.o: %.S
-	$(CC) -g -c -o $@ $^
+	$(CCAS) -g -c -o $@ $^
 
 clean:
 	rm -vf $(C_OBJS) $(ASM_OBJS) playground
