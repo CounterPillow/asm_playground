@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This file has been shamelessly yoinked from dav1d, with adjustments made for
- * libass.
+ * this code.
  *
  */
 
