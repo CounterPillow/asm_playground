@@ -1,5 +1,5 @@
 C_OBJS = main.o
-ASM_OBJS = asm.o matsdiv.o matsdiv_dup.o matmul.o
+ASM_OBJS = asm.o matsdiv.o matsdiv_dup.o matmul.o find.o
 OBJS = $(C_OBJS) $(ASM_OBJS)
 CC ?= cc
 CCAS ?= gcc

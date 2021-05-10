@@ -12,6 +12,8 @@
 // reduces matrix to 0 if set too high, making the check at the end pointless
 #define REPETITIONS 20
 #define MATMUL_REPETITIONS 100
+#define HAYSTACK_LEN 8000
+#define MAX_HAYSTACKS 10
 
 #define EPSILON 0.000001
 
@@ -47,6 +49,18 @@ void pg_mat4x4mul_c(float A[4][4], float B[4][4], float res[4][4]) {
     res[3][3] = A[3][0]*B[0][3] + A[3][1]*B[1][3] + A[3][2]*B[2][3] + A[3][3]*B[3][3];
 }
 
+/* does a linear search through an array of integers
+ * Returns index of needle if found, and -1 otherwise
+ */
+int pg_find_c(int haystack[], int h_len, int needle) {
+    for(int i = 0; i < h_len; i++) {
+        if(haystack[i] == needle) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void pg_printmat(float mat[4][4])  {
     for(int row = 0; row < 4; row++) {
         printf("%f %f %f %f\n", mat[row][0], mat[row][1], mat[row][2], mat[row][3]);
@@ -58,6 +72,12 @@ void pg_randmat(float mat[4][4]) {
         for(int col = 0; col < 4; col++) {
             mat[row][col] = (float) rand() / (float) RAND_MAX;
         }
+    }
+}
+
+void pg_randarray(int array[], int n) {
+    for(int i = 0; i < n; i++) {
+        array[i] = rand() << 24;
     }
 }
 
@@ -194,6 +214,31 @@ bool test_matmul() {
     return p;
 }
 
+bool test_find() {
+    __attribute__((aligned(64)))
+    int haystack[MAX_HAYSTACKS][HAYSTACK_LEN];
+    for(int i = 0; i < MAX_HAYSTACKS; i++) {
+        pg_randarray(haystack[i], HAYSTACK_LEN);
+    }
+
+    clock_t start = clock();
+    for(int i = 0; i < MAX_HAYSTACKS; i++) {
+        pg_find_c(haystack[i], HAYSTACK_LEN, 69);
+    }
+    clock_t elapsed_c = clock() - start;
+
+    start = clock();
+    for(int i = 0; i < MAX_HAYSTACKS; i++) {
+        pg_find(haystack[i], HAYSTACK_LEN, 69);
+    }
+    clock_t elapsed_simd = clock() - start;
+
+    printf("find elapsed time:\n");
+    printf("simd = %ld, %.3fx faster than C\n", elapsed_simd, (float) elapsed_c / (float) elapsed_simd);
+    printf("C = %ld\n", elapsed_c);
+    return true;
+}
+
 
 int main(int argc, char** argv) {
     srand(clock());
@@ -201,6 +246,8 @@ int main(int argc, char** argv) {
     passed = passed & test_matsdiv();
     printf("------------------------------\n");
     passed = passed & test_matmul();
+    printf("------------------------------\n");
+    passed = passed & test_find();
 
     return passed ? 0 : -1;
 }
