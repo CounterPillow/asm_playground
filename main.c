@@ -77,7 +77,7 @@ void pg_randmat(float mat[4][4]) {
 
 void pg_randarray(int array[], int n) {
     for(int i = 0; i < n; i++) {
-        array[i] = rand() >> 24;
+        array[i] = rand() & 0xff;
     }
 }
 
