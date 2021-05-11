@@ -1,7 +1,5 @@
 #include "asm.S"
 
-/* this sucks and is slow. I have not found out yet why. Probably branching. */
-
 /* extern int pg_find(int haystack[], int h_len, int needle); */
 function find, export=1, align=4
     mov x3, #0

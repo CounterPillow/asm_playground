@@ -13,7 +13,7 @@
 #define REPETITIONS 20
 #define MATMUL_REPETITIONS 100
 #define HAYSTACK_LEN 8000
-#define MAX_HAYSTACKS 10
+#define MAX_HAYSTACKS 100
 
 #define EPSILON 0.000001
 
@@ -77,7 +77,7 @@ void pg_randmat(float mat[4][4]) {
 
 void pg_randarray(int array[], int n) {
     for(int i = 0; i < n; i++) {
-        array[i] = rand() << 24;
+        array[i] = rand() >> 24;
     }
 }
 
@@ -215,6 +215,7 @@ bool test_matmul() {
 }
 
 bool test_find() {
+    int results[2][MAX_HAYSTACKS];
     __attribute__((aligned(64)))
     int haystack[MAX_HAYSTACKS][HAYSTACK_LEN];
     for(int i = 0; i < MAX_HAYSTACKS; i++) {
@@ -223,20 +224,27 @@ bool test_find() {
 
     clock_t start = clock();
     for(int i = 0; i < MAX_HAYSTACKS; i++) {
-        pg_find_c(haystack[i], HAYSTACK_LEN, 69);
+        results[0][i] = pg_find_c(haystack[i], HAYSTACK_LEN, 69);
     }
     clock_t elapsed_c = clock() - start;
 
     start = clock();
     for(int i = 0; i < MAX_HAYSTACKS; i++) {
-        pg_find(haystack[i], HAYSTACK_LEN, 69);
+        results[1][i] = pg_find(haystack[i], HAYSTACK_LEN, 69);
     }
     clock_t elapsed_simd = clock() - start;
 
     printf("find elapsed time:\n");
     printf("simd = %ld, %.3fx faster than C\n", elapsed_simd, (float) elapsed_c / (float) elapsed_simd);
     printf("C = %ld\n", elapsed_c);
-    return true;
+    bool passed = true;
+    printf("results: ");
+    for(int i = 0; i < MAX_HAYSTACKS; i++) {
+        passed = passed & (results[0][i] == results[1][i]);
+        printf("%d%s", results[0][i], i < MAX_HAYSTACKS - 1 ? ", " : "\n");
+    }
+    printf("find test: %s\n", passed ? "passed" : "FAILED");
+    return passed;
 }
 
 
