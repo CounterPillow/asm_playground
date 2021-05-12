@@ -14,9 +14,11 @@ four:
     mov x5, x3, lsl #2          /* x5 = x3 << 2 */
     ldr q1, [x0, x5]            /* load 4 32-bit numbers into q1/v1 */
     cmeq v1.4S, v1.4S, v0.4S    /* where do they match? */
-    addv s2, v1.4S              /* add all elements across */
-    fmov w4, s2                 /* but we need this in an int reg */
-    cbnz w4, one                /* BRANCH if it's nonzero, do it one by one */
+    mov x5, v1.d[0]             /* move 64 bit parts into int regs */
+    mov x4, v1.d[1]
+    orr x4, x4, x5              /* or them together */
+    cmp x4, #0
+    b.ne one
     add w3, w3, #4              /* advance counter by 4 bytes */
     b four
 one:
