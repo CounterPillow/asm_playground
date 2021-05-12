@@ -17,8 +17,7 @@ four:
     mov x5, v1.d[0]             /* move 64 bit parts into int regs */
     mov x4, v1.d[1]
     orr x4, x4, x5              /* or them together */
-    cmp x4, #0
-    b.ne one
+    cbnz x4, one
     add w3, w3, #4              /* advance counter by 4 elements */
     b four
 one:
