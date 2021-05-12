@@ -13,7 +13,7 @@
 #define REPETITIONS 20
 #define MATMUL_REPETITIONS 100
 #define HAYSTACK_LEN 8000
-#define MAX_HAYSTACKS 100
+#define MAX_HAYSTACKS 200
 
 #define EPSILON 0.000001
 
@@ -77,7 +77,7 @@ void pg_randmat(float mat[4][4]) {
 
 void pg_randarray(int array[], int n) {
     for(int i = 0; i < n; i++) {
-        array[i] = rand() & 0xff;
+        array[i] = rand() & 0xfff;
     }
 }
 

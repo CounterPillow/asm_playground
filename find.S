@@ -19,11 +19,11 @@ four:
     orr x4, x4, x5              /* or them together */
     cmp x4, #0
     b.ne one
-    add w3, w3, #4              /* advance counter by 4 bytes */
+    add w3, w3, #4              /* advance counter by 4 elements */
     b four
 one:
     cmp w1, w3
-    b.eq finish_failure         /* BRANCH */
+    b.lt finish_failure         /* BRANCH */
 one_loop:
     ldr w4, [x0, x3, lsl #2]
     cmp w4, w2                  /* haystack[w3] == needle? */
