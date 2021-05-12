@@ -17,6 +17,8 @@
 
 #define EPSILON 0.000001
 
+#define ERR(a) "\e[1;91m" a "\e[0m"
+
 void pg_mat4x4sdiv_c(float mat[4][4], float scalar) {
     for(int row = 0; row < 4; row++) {
         for(int col = 0; col < 4; col++) {
@@ -133,7 +135,7 @@ bool test_matsdiv() {
             }
         }
     }
-    printf("fmul: %s, fdiv: %s\n", fucked[0] ? "FAILED" : "passed", fucked[1] ? "FAILED" : "passed");
+    printf("fmul: %s, fdiv: %s\n", fucked[0] ? ERR("FAILED") : "passed", fucked[1] ? ERR("FAILED") : "passed");
     return !(fucked[0] || fucked[1]);
 }
 
@@ -209,7 +211,7 @@ bool test_matmul() {
             }
         }
     }
-    printf("matmul test: %s\n", p ? "passed" : "FAILED");
+    printf("matmul test: %s\n", p ? "passed" : ERR("FAILED"));
 
     return p;
 }
@@ -243,7 +245,7 @@ bool test_find() {
         passed = passed & (results[0][i] == results[1][i]);
         printf("%d%s", results[0][i], i < MAX_HAYSTACKS - 1 ? ", " : "\n");
     }
-    printf("find test: %s\n", passed ? "passed" : "FAILED");
+    printf("find test: %s\n", passed ? "passed" : ERR("FAILED"));
     return passed;
 }
 
