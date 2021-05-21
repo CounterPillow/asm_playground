@@ -6,6 +6,7 @@
 #include <math.h>
 #include <assert.h>
 #include "main.h"
+#include "resize_half.h"
 
 // blows up memory if set too high
 #define MAX_MATRICES 30000
@@ -14,6 +15,7 @@
 #define MATMUL_REPETITIONS 100
 #define HAYSTACK_LEN 8000
 #define MAX_HAYSTACKS 200
+#define MAX_IMGS 20
 
 #define EPSILON 0.000001
 
@@ -81,6 +83,19 @@ void pg_randarray(int array[], int n) {
     for(int i = 0; i < n; i++) {
         array[i] = rand() & 0xfff;
     }
+}
+
+void pg_randarray8(uint8_t array[], size_t n) {
+    for(int i = 0; i < n; i++) {
+        array[i] = (uint8_t) (rand() & 0xff);
+    }
+}
+
+void pg_printarray8(uint8_t array[], size_t n) {
+    for(int i = 0; i < n - 1; i++) {
+        printf("%d, ", array[i]);
+    }
+    printf("%d\n", array[n - 1]);
 }
 
 bool test_matsdiv() {
@@ -249,6 +264,83 @@ bool test_find() {
     return passed;
 }
 
+bool test_resize_half() {
+    //uint8_t src_img[MAX_IMGS][1024 * 1024 * 4];
+    uint8_t** src_img = malloc(MAX_IMGS * sizeof(uint8_t*));
+    for(int i = 0; i < MAX_IMGS; i++) {
+        src_img[i] = malloc(1024 * 1024 * 4);
+    }
+    //uint8_t dest_img[2][MAX_IMGS][512 * 512 * 4];
+    uint8_t** dest_img[2];
+    dest_img[0] = malloc(MAX_IMGS * sizeof(uint8_t*));
+    dest_img[1] = malloc(MAX_IMGS * sizeof(uint8_t*));
+    for(int i = 0; i < MAX_IMGS; i++) {
+        dest_img[0][i] = malloc(512 * 512 * 4);
+        dest_img[1][i] = malloc(512 * 512 * 4);
+    }
+    assert(src_img != NULL && dest_img != NULL);
+
+    for(int i = 0; i < MAX_IMGS; i++) {
+        pg_randarray8(src_img[i], 1024 * 1024 * 4);
+    }
+
+    clock_t start = clock();
+    for(int i = 0; i < MAX_IMGS; i++) {
+        resize_half_c(dest_img[0][i], src_img[i], 1024, 1024);
+    }
+    clock_t elapsed_c = clock() - start;
+
+    start = clock();
+    for(int i = 0; i < MAX_IMGS; i++) {
+        resize_half_intrin(dest_img[1][i], src_img[i], 1024, 1024);
+    }
+    clock_t elapsed_intrin = clock() - start;
+
+    bool passed = true;
+    for(int i = 0; i < MAX_IMGS; i++) {
+        for(int y = 0; y < 512; y++) {
+            for(int x = 0; x < 512; x++) {
+                passed = passed &  (dest_img[0][i][y * 512 + x] ==
+                                    dest_img[1][i][y * 512 + x]);
+            }
+        }
+    }
+    for(int i = 0; i < MAX_IMGS; i++) {
+        free(src_img[i]);
+        free(dest_img[0][i]);
+        free(dest_img[1][i]);
+    }
+    free(src_img);
+    free(dest_img[0]);
+    free(dest_img[1]);
+
+    printf("resize_half elapsed time:\n");
+    printf("intrin = %ld, %.3fx faster than C\n", elapsed_intrin, (float) elapsed_c / (float) elapsed_intrin);
+    printf("C = %ld\n", elapsed_c);
+
+    printf("resize_half test: %s\n", passed ? "passed" : ERR("FAILED"));
+    /*uint8_t test_src[1024];
+    for(int i = 0; i < 1024; i++) {
+        test_src[i] = 1;
+    }
+    uint8_t test_dest[256];
+    uint8_t test_dest2[256];
+    printf("I: ");
+    resize_half_intrin(test_dest, test_src, 16, 16);
+    pg_printarray8(test_dest, 256);
+    printf("C: ");
+    resize_half_scuffed(test_dest2, test_src, 16, 16);
+    pg_printarray8(test_dest2, 256);
+    for(int i = 0; i < 256; i++) {
+        char broken[13];
+        snprintf(broken, 13, ERR("%d"), abs((test_dest[i] - test_dest2[i])) % 10);
+        printf("%s", test_dest[i] == test_dest2[i] ? "0" : broken);
+    }
+    printf("\n");*/
+
+    return passed;
+}
+
 
 int main(int argc, char** argv) {
     srand(clock());
@@ -258,6 +350,8 @@ int main(int argc, char** argv) {
     passed = passed & test_matmul();
     printf("------------------------------\n");
     passed = passed & test_find();
+    printf("------------------------------\n");
+    passed = passed & test_resize_half();
 
     return passed ? 0 : -1;
 }
