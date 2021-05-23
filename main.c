@@ -7,6 +7,9 @@
 #include <assert.h>
 #include "main.h"
 #include "resize_half.h"
+#include "matmul.h"
+#include "matsdiv.h"
+#include "find.h"
 
 // blows up memory if set too high
 #define MAX_MATRICES 30000
@@ -21,49 +24,6 @@
 
 #define ERR(a) "\e[1;91m" a "\e[0m"
 
-void pg_mat4x4sdiv_c(float mat[4][4], float scalar) {
-    for(int row = 0; row < 4; row++) {
-        for(int col = 0; col < 4; col++) {
-            mat[row][col] = mat[row][col] / scalar;
-        }
-    }
-}
-
-/* multiplies two 4x4 matrices, saving the result in `res`. `res` MUST neither be A nor B */
-void pg_mat4x4mul_c(float A[4][4], float B[4][4], float res[4][4]) {
-    //assert(res != A && res != B);
-    res[0][0] = A[0][0]*B[0][0] + A[0][1]*B[1][0] + A[0][2]*B[2][0] + A[0][3]*B[3][0];
-    res[0][1] = A[0][0]*B[0][1] + A[0][1]*B[1][1] + A[0][2]*B[2][1] + A[0][3]*B[3][1];
-    res[0][2] = A[0][0]*B[0][2] + A[0][1]*B[1][2] + A[0][2]*B[2][2] + A[0][3]*B[3][2];
-    res[0][3] = A[0][0]*B[0][3] + A[0][1]*B[1][3] + A[0][2]*B[2][3] + A[0][3]*B[3][3];
-
-    res[1][0] = A[1][0]*B[0][0] + A[1][1]*B[1][0] + A[1][2]*B[2][0] + A[1][3]*B[3][0];
-    res[1][1] = A[1][0]*B[0][1] + A[1][1]*B[1][1] + A[1][2]*B[2][1] + A[1][3]*B[3][1];
-    res[1][2] = A[1][0]*B[0][2] + A[1][1]*B[1][2] + A[1][2]*B[2][2] + A[1][3]*B[3][2];
-    res[1][3] = A[1][0]*B[0][3] + A[1][1]*B[1][3] + A[1][2]*B[2][3] + A[1][3]*B[3][3];
-
-    res[2][0] = A[2][0]*B[0][0] + A[2][1]*B[1][0] + A[2][2]*B[2][0] + A[2][3]*B[3][0];
-    res[2][1] = A[2][0]*B[0][1] + A[2][1]*B[1][1] + A[2][2]*B[2][1] + A[2][3]*B[3][1];
-    res[2][2] = A[2][0]*B[0][2] + A[2][1]*B[1][2] + A[2][2]*B[2][2] + A[2][3]*B[3][2];
-    res[2][3] = A[2][0]*B[0][3] + A[2][1]*B[1][3] + A[2][2]*B[2][3] + A[2][3]*B[3][3];
-
-    res[3][0] = A[3][0]*B[0][0] + A[3][1]*B[1][0] + A[3][2]*B[2][0] + A[3][3]*B[3][0];
-    res[3][1] = A[3][0]*B[0][1] + A[3][1]*B[1][1] + A[3][2]*B[2][1] + A[3][3]*B[3][1];
-    res[3][2] = A[3][0]*B[0][2] + A[3][1]*B[1][2] + A[3][2]*B[2][2] + A[3][3]*B[3][2];
-    res[3][3] = A[3][0]*B[0][3] + A[3][1]*B[1][3] + A[3][2]*B[2][3] + A[3][3]*B[3][3];
-}
-
-/* does a linear search through an array of integers
- * Returns index of needle if found, and -1 otherwise
- */
-int pg_find_c(int haystack[], int h_len, int needle) {
-    for(int i = 0; i < h_len; i++) {
-        if(haystack[i] == needle) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 void pg_printmat(float mat[4][4])  {
     for(int row = 0; row < 4; row++) {

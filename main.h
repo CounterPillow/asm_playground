@@ -1,15 +1,12 @@
 #ifndef PG_MAIN_H
 #define PG_MAIN_H
-/* divides a 4x4 matrix of floats by the scalar scalar
- * in place, i.e. overwrites the input
- */
-extern void pg_mat4x4sdiv(float mat[4][4], float scalar);
-void pg_mat4x4sdiv_c(float mat[4][4], float scalar);
-extern void pg_mat4x4sdiv_dup(float mat[4][4], float scalar);
 
-void pg_mat4x4mul_c(float A[4][4], float B[4][4], float res[4][4]);
-extern void pg_mat4x4mul(float A[4][4], float B[4][4], float res[4][4]);
+#include <stdint.h>
 
-int pg_find_c(int haystack[], int h_len, int needle);
-extern int pg_find(int haystack[], int h_len, int needle);
+void pg_printmat(float mat[4][4]);
+void pg_randmat(float mat[4][4]);
+void pg_randarray(int array[], int n);
+void pg_randarray8(uint8_t array[], size_t n);
+void pg_printarray8(uint8_t array[], size_t n);
+
 #endif
