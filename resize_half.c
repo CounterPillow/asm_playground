@@ -9,8 +9,8 @@ void resize_half_c(uint8_t* dest_image, uint8_t* src_image, uint32_t src_width,
     for(int y = 0; y < src_height; y += 2) {
         for(int x = 0; x < src_width; x += 2) {
             unsigned int r, g, b, a;
-            uint8_t* topleft = src_image + src_width * y * 4 + x;
-            uint8_t* bottomleft = src_image + src_width * (y + 1) * 4 + x;
+            uint8_t* topleft = src_image + src_width * y * 4 + x * 4;
+            uint8_t* bottomleft = src_image + src_width * (y + 1) * 4 + x * 4;
             r = *topleft + *bottomleft + *(topleft + 4) + *(bottomleft + 4);
             g = *(topleft + 1) + *(bottomleft + 1) + *(topleft + 4 + 1) + *(bottomleft + 4 + 1);
             b = *(topleft + 2) + *(bottomleft + 2) + *(topleft + 4 + 2) + *(bottomleft + 4 + 2);
@@ -136,7 +136,7 @@ void resize_half_intrin(uint8_t* dest_image, uint8_t* src_image, uint32_t src_wi
              * | r1 | r3 | r5 | r7 | ... | g1 | g3 | ...
              */
             uint8x16_t e1 = vuzp1q_u8(p1, p2);
-            uint8x16_t o1 = vuzp1q_u8(p1, p2);
+            uint8x16_t o1 = vuzp2q_u8(p1, p2);
             /* =>
              * | (r0 + r1) / 2 | (r2 + r3) / 2 | (r4 + r5) / 2 | ...
              */
@@ -146,7 +146,7 @@ void resize_half_intrin(uint8_t* dest_image, uint8_t* src_image, uint32_t src_wi
             uint64_t green = vgetq_lane_u64(redgreen, 1);
             // blue and alpha
             uint8x16_t e2 = vuzp1q_u8(p3, p4);
-            uint8x16_t o2 = vuzp1q_u8(p3, p4);
+            uint8x16_t o2 = vuzp2q_u8(p3, p4);
             uint8x16_t out2 = vhaddq_u8(e2, o2);
             uint64x2_t bluealpha = vreinterpretq_u64_u8(out2);
             uint64_t blue = vgetq_lane_u64(bluealpha, 0);

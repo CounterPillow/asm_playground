@@ -19,6 +19,7 @@
 #define HAYSTACK_LEN 8000
 #define MAX_HAYSTACKS 200
 #define MAX_IMGS 20
+#define IMG_SIZE 512
 
 #define EPSILON 0.000001
 
@@ -228,40 +229,45 @@ bool test_resize_half() {
     //uint8_t src_img[MAX_IMGS][1024 * 1024 * 4];
     uint8_t** src_img = malloc(MAX_IMGS * sizeof(uint8_t*));
     for(int i = 0; i < MAX_IMGS; i++) {
-        src_img[i] = malloc(1024 * 1024 * 4);
+        src_img[i] = malloc(IMG_SIZE * IMG_SIZE * 4);
     }
     //uint8_t dest_img[2][MAX_IMGS][512 * 512 * 4];
     uint8_t** dest_img[2];
     dest_img[0] = malloc(MAX_IMGS * sizeof(uint8_t*));
     dest_img[1] = malloc(MAX_IMGS * sizeof(uint8_t*));
     for(int i = 0; i < MAX_IMGS; i++) {
-        dest_img[0][i] = malloc(512 * 512 * 4);
-        dest_img[1][i] = malloc(512 * 512 * 4);
+        dest_img[0][i] = malloc(IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
+        dest_img[1][i] = malloc(IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
     }
     assert(src_img != NULL && dest_img != NULL);
 
     for(int i = 0; i < MAX_IMGS; i++) {
-        pg_randarray8(src_img[i], 1024 * 1024 * 4);
+        pg_randarray8(src_img[i], IMG_SIZE * IMG_SIZE * 4);
+        //memset(src_img[i], 255, IMG_SIZE * IMG_SIZE * 4);
     }
 
     clock_t start = clock();
     for(int i = 0; i < MAX_IMGS; i++) {
-        resize_half_c(dest_img[0][i], src_img[i], 1024, 1024);
+        resize_half_c(dest_img[0][i], src_img[i], IMG_SIZE, IMG_SIZE);
     }
     clock_t elapsed_c = clock() - start;
 
     start = clock();
     for(int i = 0; i < MAX_IMGS; i++) {
-        resize_half_intrin(dest_img[1][i], src_img[i], 1024, 1024);
+        resize_half_intrin(dest_img[1][i], src_img[i], IMG_SIZE, IMG_SIZE);
     }
     clock_t elapsed_intrin = clock() - start;
 
     bool passed = true;
     for(int i = 0; i < MAX_IMGS; i++) {
-        for(int y = 0; y < 512; y++) {
-            for(int x = 0; x < 512; x++) {
-                passed = passed &  (dest_img[0][i][y * 512 + x] ==
-                                    dest_img[1][i][y * 512 + x]);
+        for(int y = 0; y < IMG_SIZE / 2; y++) {
+            for(int x = 0; x < IMG_SIZE / 2; x++) {
+                bool did_pass = true;
+                for(int c = 0; c < 4; c++) {
+                    did_pass = (abs(dest_img[0][i][y * IMG_SIZE / 2 * 4 + x * 4 + c] -
+                                dest_img[1][i][y * IMG_SIZE / 2 * 4 + x * 4 + c]) <= 1);
+                }
+                passed = passed & did_pass;
             }
         }
     }

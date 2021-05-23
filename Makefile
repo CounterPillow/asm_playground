@@ -3,7 +3,7 @@ ASM_OBJS = asm/asm.o asm/matsdiv.o asm/matsdiv_dup.o asm/matmul.o asm/find.o
 OBJS = $(C_OBJS) $(ASM_OBJS)
 CC ?= cc
 CCAS ?= gcc
-CFLAGS = -O3
+CFLAGS ?= -O3
 
 
 playground: $(OBJS)
