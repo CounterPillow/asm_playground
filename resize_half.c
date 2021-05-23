@@ -117,8 +117,8 @@ void resize_half_intrin(uint8_t* dest_image, uint8_t* src_image, uint32_t src_wi
     for (y = 0; y < src_height; y += 2) {
         for (x = 0; x < src_width; x += 16) {
 
-            uint8x16x4_t row1 = vld4q_u8(src_image + y * src_width * 4 + x);
-            uint8x16x4_t row2 = vld4q_u8(src_image + (y + 1) * src_width * 4 + x);
+            uint8x16x4_t row1 = vld4q_u8(src_image + y * src_width * 4 + x * 4);
+            uint8x16x4_t row2 = vld4q_u8(src_image + (y + 1) * src_width * 4 + x * 4);
 
             /*
              * | r0,0 | r1,0 | r2,0 | r3,0 | r4,0 | r5,0 | ...

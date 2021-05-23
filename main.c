@@ -10,6 +10,7 @@
 #include "matmul.h"
 #include "matsdiv.h"
 #include "find.h"
+#include "pandu.h"
 
 // blows up memory if set too high
 #define MAX_MATRICES 30000
@@ -303,6 +304,21 @@ bool test_resize_half() {
         printf("%s", test_dest[i] == test_dest2[i] ? "0" : broken);
     }
     printf("\n");*/
+
+    uint8_t* pandu = malloc(pandu_width * pandu_height * 4);
+    uint8_t* pandu_dest = malloc(pandu_width / 2 * pandu_height / 2 * 4);
+    for(int i = 0; i < pandu_width * pandu_height * 4; i += 4) {
+        PANDU_PIXEL(pandu_data, (pandu + i));
+        pandu[i + 3] = 0;
+    }
+    FILE* out = fopen("output.ppm", "wb");
+    fprintf(out, "P6\n");
+    fprintf(out, "%d %d\n%d\n", pandu_width / 2, pandu_height / 2, 255);
+    resize_half_intrin(pandu_dest, pandu, pandu_width, pandu_height);
+    for(int i = 0; i < pandu_width / 2 * pandu_height / 2; i++) {
+        fwrite(pandu_dest + i * 4, 1, 3, out);
+    }
+    fclose(out);
 
     return passed;
 }
