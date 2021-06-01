@@ -4,12 +4,12 @@
 function find, export=1, align=4
     mov x3, #0
     /* early continue to one-by-one, no dup */
-    cmp w1, #4                  /* if < 4 */
+    cmp w1, #8                  /* if < 8 */
     b.lt one_loop               /* BRANCH */
     dup v0.4S, w2
 eight:
     sub w4, w1, w3
-    cmp w4, #8                  /* if < 4 */
+    cmp w4, #8                  /* if < 8 */
     b.lt one_loop               /* BRANCH */
     mov x5, x3, lsl #2          /* x5 = x3 << 2 */
     ldr q1, [x0, x5]            /* load 4 32-bit numbers into q1/v1 */
@@ -22,7 +22,7 @@ eight:
     mov x4, v1.d[1]
     orr x4, x4, x5              /* or them together */
     cbnz x4, one
-    add w3, w3, #8              /* advance counter by 4 elements */
+    add w3, w3, #8              /* advance counter by 8 elements */
     b eight
 one:
     cmp w1, w3
