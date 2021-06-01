@@ -7,19 +7,23 @@ function find, export=1, align=4
     cmp w1, #4                  /* if < 4 */
     b.lt one_loop               /* BRANCH */
     dup v0.4S, w2
-four:
+eight:
     sub w4, w1, w3
-    cmp w4, #4                  /* if < 4 */
+    cmp w4, #8                  /* if < 4 */
     b.lt one_loop               /* BRANCH */
     mov x5, x3, lsl #2          /* x5 = x3 << 2 */
     ldr q1, [x0, x5]            /* load 4 32-bit numbers into q1/v1 */
+    add x5, x5, #16
+    ldr q2, [x0, x5]
     cmeq v1.4S, v1.4S, v0.4S    /* where do they match? */
+    cmeq v2.4S, v2.4S, v0.4S    /* where do they match? */
+    orr v1.16B, v1.16B, v2.16B
     mov x5, v1.d[0]             /* move 64 bit parts into int regs */
     mov x4, v1.d[1]
     orr x4, x4, x5              /* or them together */
     cbnz x4, one
-    add w3, w3, #4              /* advance counter by 4 elements */
-    b four
+    add w3, w3, #8              /* advance counter by 4 elements */
+    b eight
 one:
     cmp w1, w3
     b.lt finish_failure         /* BRANCH */
