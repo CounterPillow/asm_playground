@@ -62,13 +62,17 @@ void pg_printarray8(uint8_t array[], size_t n) {
 
 bool test_matsdiv() {
     __attribute__((aligned(64)))
-    float m[3][MAX_MATRICES][4][4];
+    float m1[MAX_MATRICES][4][4];
+    __attribute__((aligned(64)))
+    float m2[MAX_MATRICES][4][4];
+    __attribute__((aligned(64)))
+    float m3[MAX_MATRICES][4][4];
 
     printf("Pregenerating random matrices");
     for(int i = 0; i < MAX_MATRICES; i++) {
-        pg_randmat(m[0][i]);
-        memcpy(m[1][i], m[0][i], 64);
-        memcpy(m[2][i], m[0][i], 64);
+        pg_randmat(m1[i]);
+        memcpy(m2[i], m1[i], 64);
+        memcpy(m3[i], m1[i], 64);
         if(i % 5000 == 0)
             printf(".");
     }
@@ -76,21 +80,21 @@ bool test_matsdiv() {
 
     clock_t start = clock();
     for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv(m[0][i % MAX_MATRICES], 1.1);
+        pg_mat4x4sdiv(m1[i % MAX_MATRICES], 1.1);
     }
     clock_t elapsed_1 = clock() - start;
     printf("matsdiv fmul test complete\n");
 
     start = clock();
     for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv_dup(m[1][i % MAX_MATRICES], 1.1);
+        pg_mat4x4sdiv_dup(m2[i % MAX_MATRICES], 1.1);
     }
     clock_t elapsed_2 = clock() - start;
     printf("matsdiv fdiv test complete\n");
 
     start = clock();
     for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv_c(m[2][i % MAX_MATRICES], 1.1);
+        pg_mat4x4sdiv_c(m3[i % MAX_MATRICES], 1.1);
     }
     clock_t elapsed_3 = clock() - start;
     printf("matsdiv C test complete\n");
@@ -102,12 +106,13 @@ bool test_matsdiv() {
 
     bool fucked[2] = {false, false};
     for(int i = 0; i < MAX_MATRICES; i++) {
-        for(int j = 0; j < 2; j++) {
-            for(int row = 0; row < 4; row++) {
-                for(int col = 0; col < 4; col++) {
-                    if(fabs(m[j][i][row][col] - m[2][i][row][col]) > EPSILON) {
-                        fucked[j] = true;
-                    }
+        for(int row = 0; row < 4; row++) {
+            for(int col = 0; col < 4; col++) {
+                if(fabs(m1[i][row][col] - m3[i][row][col]) > EPSILON) {
+                    fucked[0] = true;
+                }
+                if(fabs(m2[i][row][col] - m3[i][row][col]) > EPSILON) {
+                    fucked[1] = true;
                 }
             }
         }
