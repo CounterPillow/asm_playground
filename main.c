@@ -11,6 +11,7 @@
 #include "matsdiv.h"
 #include "find.h"
 #include "pandu.h"
+#include "mat_common.h"
 
 // blows up memory if set too high
 #define MAX_MATRICES 30000
@@ -27,16 +28,16 @@
 #define ERR(a) "\e[1;91m" a "\e[0m"
 
 
-void pg_printmat(float mat[4][4])  {
+void pg_printmat(float mat[16])  {
     for(int row = 0; row < 4; row++) {
-        printf("%f %f %f %f\n", mat[row][0], mat[row][1], mat[row][2], mat[row][3]);
+        printf("%f %f %f %f\n", MAT4(mat, row, 0), MAT4(mat, row, 1), MAT4(mat, row, 2), MAT4(mat, row, 3));
     }
 }
 
-void pg_randmat(float mat[4][4]) {
+void pg_randmat(float mat[16]) {
     for(int row = 0; row < 4; row++) {
         for(int col = 0; col < 4; col++) {
-            mat[row][col] = (float) rand() / (float) RAND_MAX;
+            MAT4(mat, row, col) = (float) rand() / (float) RAND_MAX;
         }
     }
 }
@@ -62,11 +63,11 @@ void pg_printarray8(uint8_t array[], size_t n) {
 
 bool test_matsdiv() {
     __attribute__((aligned(64)))
-    float m1[MAX_MATRICES][4][4];
+    float m1[MAX_MATRICES][16];
     __attribute__((aligned(64)))
-    float m2[MAX_MATRICES][4][4];
+    float m2[MAX_MATRICES][16];
     __attribute__((aligned(64)))
-    float m3[MAX_MATRICES][4][4];
+    float m3[MAX_MATRICES][16];
 
     printf("Pregenerating random matrices");
     for(int i = 0; i < MAX_MATRICES; i++) {
@@ -108,10 +109,10 @@ bool test_matsdiv() {
     for(int i = 0; i < MAX_MATRICES; i++) {
         for(int row = 0; row < 4; row++) {
             for(int col = 0; col < 4; col++) {
-                if(fabs(m1[i][row][col] - m3[i][row][col]) > EPSILON) {
+                if(fabs(MAT4(m1[i], row, col) - MAT4(m3[i], row, col)) > EPSILON) {
                     fucked[0] = true;
                 }
-                if(fabs(m2[i][row][col] - m3[i][row][col]) > EPSILON) {
+                if(fabs(MAT4(m2[i], row, col) - MAT4(m3[i], row, col)) > EPSILON) {
                     fucked[1] = true;
                 }
             }
@@ -123,22 +124,22 @@ bool test_matsdiv() {
 
 bool test_matmul() {
     __attribute__((aligned(64)))
-    float A_ex[4][4] = {
-        {1.1, 1.2, 1.3, 1.4},
-        {2.1, 2.2, 2.3, 2.4},
-        {3.1, 3.2, 3.3, 3.4},
-        {4.1, 4.2, 4.3, 4.4},
+    float A_ex[16] = {
+        1.1, 1.2, 1.3, 1.4,
+        2.1, 2.2, 2.3, 2.4,
+        3.1, 3.2, 3.3, 3.4,
+        4.1, 4.2, 4.3, 4.4,
     };
     __attribute__((aligned(64)))
-    float B_ex[4][4] = {
-        {5.1, 5.2, 5.3, 5.4},
-        {6.1, 6.2, 6.3, 6.4},
-        {7.1, 7.2, 7.3, 7.4},
-        {8.1, 8.2, 8.3, 8.4},
+    float B_ex[16] = {
+        5.1, 5.2, 5.3, 5.4,
+        6.1, 6.2, 6.3, 6.4,
+        7.1, 7.2, 7.3, 7.4,
+        8.1, 8.2, 8.3, 8.4,
     };
     __attribute__((aligned(64)))
-    float res_ex[4][4];
-    float res2_ex[4][4];
+    float res_ex[16];
+    float res2_ex[16];
 
     pg_mat4x4mul_c(A_ex, B_ex, res_ex);
     printf("Matrix multiplication result:\n");
@@ -149,10 +150,10 @@ bool test_matmul() {
     pg_printmat(res2_ex);
 
     __attribute__((aligned(64)))
-    float A[2][MAX_MATRICES / 2][4][4];
+    float A[2][MAX_MATRICES / 2][16];
     __attribute__((aligned(64)))
-    float B[2][MAX_MATRICES / 2][4][4];
-    float res[2][MAX_MATRICES / 2][4][4];
+    float B[2][MAX_MATRICES / 2][16];
+    float res[2][MAX_MATRICES / 2][16];
 
     printf("Pregenerating random matrices");
     for(int i = 0; i < MAX_MATRICES / 2; i++) {
@@ -187,7 +188,7 @@ bool test_matmul() {
     for(int i = 0; i < MAX_MATRICES / 2; i++) {
         for(int row = 0; row < 4; row++) {
             for(int col = 0; col < 4; col++) {
-                if(fabs(res[0][i][row][col] - res[0][i][row][col]) > EPSILON) {
+                if(fabs(MAT4(res[0][i], row, col) - MAT4(res[0][i], row, col)) > EPSILON) {
                     p = false;
                 }
             }
