@@ -14,7 +14,8 @@
 #include "mat_common.h"
 
 // blows up memory if set too high
-#define MAX_MATRICES 30000
+#define MAX_SDIV_MATRICES 500000
+#define MAX_MUL_MATRICES 30000
 // reduces matrix to 0 if set too high, making the check at the end pointless
 #define REPETITIONS 20
 #define MATMUL_REPETITIONS 100
@@ -62,15 +63,24 @@ void pg_printarray8(uint8_t array[], size_t n) {
 }
 
 bool test_matsdiv() {
-    __attribute__((aligned(64)))
+    /*__attribute__((aligned(64)))
     float m1[MAX_MATRICES][16];
     __attribute__((aligned(64)))
     float m2[MAX_MATRICES][16];
     __attribute__((aligned(64)))
-    float m3[MAX_MATRICES][16];
+    float m3[MAX_MATRICES][16];*/
+    float* m1data = malloc(sizeof(float) * MAX_SDIV_MATRICES * 16);
+    float* m2data = malloc(sizeof(float) * MAX_SDIV_MATRICES * 16);
+    float* m3data = malloc(sizeof(float) * MAX_SDIV_MATRICES * 16);
+    float** m1 = malloc(sizeof(float*) * MAX_SDIV_MATRICES);
+    float** m2 = malloc(sizeof(float*) * MAX_SDIV_MATRICES);
+    float** m3 = malloc(sizeof(float*) * MAX_SDIV_MATRICES);
 
     printf("Pregenerating random matrices");
-    for(int i = 0; i < MAX_MATRICES; i++) {
+    for(int i = 0; i < MAX_SDIV_MATRICES; i++) {
+        m1[i] = m1data + i * 16;
+        m2[i] = m2data + i * 16;
+        m3[i] = m3data + i * 16;
         pg_randmat(m1[i]);
         memcpy(m2[i], m1[i], 64);
         memcpy(m3[i], m1[i], 64);
@@ -80,22 +90,22 @@ bool test_matsdiv() {
     printf(" done!\n");
 
     clock_t start = clock();
-    for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv(m1[i % MAX_MATRICES], 1.1);
+    for(int i = 0; i < MAX_SDIV_MATRICES * REPETITIONS; i++) {
+        pg_mat4x4sdiv(m1[i % MAX_SDIV_MATRICES], 1.1);
     }
     clock_t elapsed_1 = clock() - start;
     printf("matsdiv fmul test complete\n");
 
     start = clock();
-    for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv_dup(m2[i % MAX_MATRICES], 1.1);
+    for(int i = 0; i < MAX_SDIV_MATRICES * REPETITIONS; i++) {
+        pg_mat4x4sdiv_dup(m2[i % MAX_SDIV_MATRICES], 1.1);
     }
     clock_t elapsed_2 = clock() - start;
     printf("matsdiv fdiv test complete\n");
 
     start = clock();
-    for(int i = 0; i < MAX_MATRICES * REPETITIONS; i++) {
-        pg_mat4x4sdiv_c(m3[i % MAX_MATRICES], 1.1);
+    for(int i = 0; i < MAX_SDIV_MATRICES * REPETITIONS; i++) {
+        pg_mat4x4sdiv_c(m3[i % MAX_SDIV_MATRICES], 1.1);
     }
     clock_t elapsed_3 = clock() - start;
     printf("matsdiv C test complete\n");
@@ -106,7 +116,7 @@ bool test_matsdiv() {
     printf("C = %ld\n", elapsed_3);
 
     bool fucked[2] = {false, false};
-    for(int i = 0; i < MAX_MATRICES; i++) {
+    for(int i = 0; i < MAX_SDIV_MATRICES; i++) {
         for(int row = 0; row < 4; row++) {
             for(int col = 0; col < 4; col++) {
                 if(fabs(MAT4(m1[i], row, col) - MAT4(m3[i], row, col)) > EPSILON) {
@@ -150,13 +160,13 @@ bool test_matmul() {
     pg_printmat(res2_ex);
 
     __attribute__((aligned(64)))
-    float A[2][MAX_MATRICES / 2][16];
+    float A[2][MAX_MUL_MATRICES / 2][16];
     __attribute__((aligned(64)))
-    float B[2][MAX_MATRICES / 2][16];
-    float res[2][MAX_MATRICES / 2][16];
+    float B[2][MAX_MUL_MATRICES / 2][16];
+    float res[2][MAX_MUL_MATRICES / 2][16];
 
     printf("Pregenerating random matrices");
-    for(int i = 0; i < MAX_MATRICES / 2; i++) {
+    for(int i = 0; i < MAX_MUL_MATRICES / 2; i++) {
         pg_randmat(A[0][i]);
         pg_randmat(B[0][i]);
         memcpy(A[1][i], A[0][i], 64);
@@ -167,17 +177,17 @@ bool test_matmul() {
     printf(" done!\n");
 
     clock_t start = clock();
-    for(int i = 0; i < MAX_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
-        pg_mat4x4mul_c(A[0][i % (MAX_MATRICES / 2)], B[0][i % (MAX_MATRICES / 2)],
-                       res[0][i % (MAX_MATRICES / 2)]);
+    for(int i = 0; i < MAX_MUL_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
+        pg_mat4x4mul_c(A[0][i % (MAX_MUL_MATRICES / 2)], B[0][i % (MAX_MUL_MATRICES / 2)],
+                       res[0][i % (MAX_MUL_MATRICES / 2)]);
     }
     clock_t elapsed_c = clock() - start;
     printf("matmul C test complete\n");
 
     start = clock();
-    for(int i = 0; i < MAX_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
-        pg_mat4x4mul(A[1][i % (MAX_MATRICES / 2)], B[1][i % (MAX_MATRICES / 2)],
-                     res[1][i % (MAX_MATRICES / 2)]);
+    for(int i = 0; i < MAX_MUL_MATRICES / 2 * MATMUL_REPETITIONS; i++) {
+        pg_mat4x4mul(A[1][i % (MAX_MUL_MATRICES / 2)], B[1][i % (MAX_MUL_MATRICES / 2)],
+                     res[1][i % (MAX_MUL_MATRICES / 2)]);
     }
     clock_t elapsed_simd = clock() - start;
     printf("matmul elapsed time:\n");
@@ -185,7 +195,7 @@ bool test_matmul() {
     printf("C = %ld\n", elapsed_c);
 
     bool p = true;
-    for(int i = 0; i < MAX_MATRICES / 2; i++) {
+    for(int i = 0; i < MAX_MUL_MATRICES / 2; i++) {
         for(int row = 0; row < 4; row++) {
             for(int col = 0; col < 4; col++) {
                 if(fabs(MAT4(res[0][i], row, col) - MAT4(res[0][i], row, col)) > EPSILON) {
