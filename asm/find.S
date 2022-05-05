@@ -11,7 +11,7 @@ eight:
     sub w4, w1, w3
     cmp w4, #8                  /* if < 8 */
     b.lt one_loop               /* BRANCH */
-    mov x5, x3, lsl #2          /* x5 = x3 << 2 */
+    lsl x5, x3, #2              /* x5 = x3 << 2 */
     ldr q1, [x0, x5]            /* load 4 32-bit numbers into q1/v1 */
     add x5, x5, #16
     ldr q2, [x0, x5]

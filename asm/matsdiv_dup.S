@@ -5,7 +5,7 @@
  */
 function mat4x4sdiv_dup, export=1, align=4
     /* duplicate v0.4S[0] aka s0 to all elements of s, i.e. {s0, 0, 0, 0} -> {s0, s0, s0, s0} */
-    dup v0.4S, v0.4S[0]
+    dup v0.4S, v0.S[0]
 
     /* main calculation begins here.
      * We load four four-element 32-bit vectors from x0,

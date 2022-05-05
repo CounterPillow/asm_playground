@@ -18,28 +18,28 @@ function mat4x4mul, export=1, align=4
     ld1 {v0.4S}, [x0], #16      /* load A[0] */
 
     ld1 {v4.4S}, [x1], #16      /* load B[0] */
-    fmla v5.4S, v4.4S, v0.4S[0]
+    fmla v5.4S, v4.4S, v0.S[0]
     ld1 {v1.4S}, [x0], #16      /* load A[1] */
-    fmla v6.4S, v4.4S, v1.4S[0]
+    fmla v6.4S, v4.4S, v1.S[0]
     ld1 {v2.4S}, [x0], #16      /* load A[2] */
-    fmla v7.4S, v4.4S, v2.4S[0]
+    fmla v7.4S, v4.4S, v2.S[0]
     ld1 {v3.4S}, [x0]           /* load A[3] */
-    fmla v24.4S, v4.4S, v3.4S[0]
+    fmla v24.4S, v4.4S, v3.S[0]
     ld1 {v4.4S}, [x1], #16      /* load B[2] */
-    fmla v5.4S, v4.4S, v0.4S[1]
-    fmla v6.4S, v4.4S, v1.4S[1]
-    fmla v7.4S, v4.4S, v2.4S[1]
-    fmla v24.4S, v4.4S, v3.4S[1]
+    fmla v5.4S, v4.4S, v0.S[1]
+    fmla v6.4S, v4.4S, v1.S[1]
+    fmla v7.4S, v4.4S, v2.S[1]
+    fmla v24.4S, v4.4S, v3.S[1]
     ld1 {v4.4S}, [x1], #16      /* load B[3] */
-    fmla v5.4S, v4.4S, v0.4S[2]
-    fmla v6.4S, v4.4S, v1.4S[2]
-    fmla v7.4S, v4.4S, v2.4S[2]
-    fmla v24.4S, v4.4S, v3.4S[2]
+    fmla v5.4S, v4.4S, v0.S[2]
+    fmla v6.4S, v4.4S, v1.S[2]
+    fmla v7.4S, v4.4S, v2.S[2]
+    fmla v24.4S, v4.4S, v3.S[2]
     ld1 {v4.4S}, [x1]           /* load B[4] */
-    fmla v5.4S, v4.4S, v0.4S[3]
-    fmla v6.4S, v4.4S, v1.4S[3]
-    fmla v7.4S, v4.4S, v2.4S[3]
-    fmla v24.4S, v4.4S, v3.4S[3]
+    fmla v5.4S, v4.4S, v0.S[3]
+    fmla v6.4S, v4.4S, v1.S[3]
+    fmla v7.4S, v4.4S, v2.S[3]
+    fmla v24.4S, v4.4S, v3.S[3]
 
     /* store the result in the location pointed at by the third parameter */
     st1 {v5.4S}, [x2], #16
