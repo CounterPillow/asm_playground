@@ -158,3 +158,79 @@ void resize_half_intrin(uint8_t* dest_image, uint8_t* src_image, uint32_t src_wi
         }
     }
 }
+
+void resize_half_intrin_new(uint8_t* dest_image, uint8_t* src_image, uint32_t src_width,
+                        uint32_t src_height) {
+    /* iteration variables */
+    uint32_t x, y;
+
+    for (y = 0; y < src_height; y += 2) {
+        for (x = 0; x < src_width; x += 32) {
+            /* Pairwise add and half the first row */
+            uint8x16x4_t row1 = vld4q_u8(src_image + y * src_width * 4 + x * 4);
+            uint16x8_t r1_h = vpaddlq_u8(row1.val[0]);
+            uint16x8_t g1_h = vpaddlq_u8(row1.val[1]);
+            uint16x8_t b1_h = vpaddlq_u8(row1.val[2]);
+            uint16x8_t a1_h = vpaddlq_u8(row1.val[3]);
+            uint8x8_t r1_h_half = vshrn_n_u16(r1_h, 1);
+            uint8x8_t g1_h_half = vshrn_n_u16(g1_h, 1);
+            uint8x8_t b1_h_half = vshrn_n_u16(b1_h, 1);
+            uint8x8_t a1_h_half = vshrn_n_u16(a1_h, 1);
+
+            /* Pairwise add and half the second row */
+            uint8x16x4_t row2 = vld4q_u8(src_image + (y + 1) * src_width * 4 + x * 4);
+            uint16x8_t r2_h = vpaddlq_u8(row2.val[0]);
+            uint16x8_t g2_h = vpaddlq_u8(row2.val[1]);
+            uint16x8_t b2_h = vpaddlq_u8(row2.val[2]);
+            uint16x8_t a2_h = vpaddlq_u8(row2.val[3]);
+            uint8x8_t r2_h_half = vshrn_n_u16(r2_h, 1);
+            uint8x8_t g2_h_half = vshrn_n_u16(g2_h, 1);
+            uint8x8_t b2_h_half = vshrn_n_u16(b2_h, 1);
+            uint8x8_t a2_h_half = vshrn_n_u16(a2_h, 1);
+
+            /* Add the rows together and half them */
+            uint8x8_t r_quarter = vhadd_u8(r1_h_half, r2_h_half);
+            uint8x8_t g_quarter = vhadd_u8(g1_h_half, g2_h_half);
+            uint8x8_t b_quarter = vhadd_u8(b1_h_half, b2_h_half);
+            uint8x8_t a_quarter = vhadd_u8(a1_h_half, a2_h_half);
+
+            /* Same thing here but for a second set of 16x2 pixels */
+            row1 = vld4q_u8(src_image + y * src_width * 4 + (x + 16) * 4);
+            r1_h = vpaddlq_u8(row1.val[0]);
+            g1_h = vpaddlq_u8(row1.val[1]);
+            b1_h = vpaddlq_u8(row1.val[2]);
+            a1_h = vpaddlq_u8(row1.val[3]);
+            r1_h_half = vshrn_n_u16(r1_h, 1);
+            g1_h_half = vshrn_n_u16(g1_h, 1);
+            b1_h_half = vshrn_n_u16(b1_h, 1);
+            a1_h_half = vshrn_n_u16(a1_h, 1);
+
+            row2 = vld4q_u8(src_image + (y + 1) * src_width * 4 + (x + 16) * 4);
+            r2_h = vpaddlq_u8(row2.val[0]);
+            g2_h = vpaddlq_u8(row2.val[1]);
+            b2_h = vpaddlq_u8(row2.val[2]);
+            a2_h = vpaddlq_u8(row2.val[3]);
+            r2_h_half = vshrn_n_u16(r2_h, 1);
+            g2_h_half = vshrn_n_u16(g2_h, 1);
+            b2_h_half = vshrn_n_u16(b2_h, 1);
+            a2_h_half = vshrn_n_u16(a2_h, 1);
+
+            uint8x8_t r_quarter_2 = vhadd_u8(r1_h_half, r2_h_half);
+            uint8x8_t g_quarter_2 = vhadd_u8(g1_h_half, g2_h_half);
+            uint8x8_t b_quarter_2 = vhadd_u8(b1_h_half, b2_h_half);
+            uint8x8_t a_quarter_2 = vhadd_u8(a1_h_half, a2_h_half);
+
+            /* Build the final vector for storing */
+            uint8x16x4_t storeme = {
+                .val = {
+                        vcombine_u8(r_quarter, r_quarter_2),
+                        vcombine_u8(g_quarter, g_quarter_2),
+                        vcombine_u8(b_quarter, b_quarter_2),
+                        vcombine_u8(a_quarter, a_quarter_2)
+                }
+            };
+            vst4q_u8(dest_image, storeme);
+            dest_image = dest_image + 16 * 4;
+        }
+    }
+}

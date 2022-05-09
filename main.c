@@ -22,7 +22,7 @@
 #define HAYSTACK_LEN 8000
 #define MAX_HAYSTACKS 200
 #define MAX_IMGS 20
-#define IMG_SIZE 512
+#define IMG_SIZE 256
 
 #define EPSILON 0.000001
 
@@ -246,15 +246,17 @@ bool test_resize_half() {
     //uint8_t src_img[MAX_IMGS][1024 * 1024 * 4];
     uint8_t** src_img = malloc(MAX_IMGS * sizeof(uint8_t*));
     for(int i = 0; i < MAX_IMGS; i++) {
-        src_img[i] = malloc(IMG_SIZE * IMG_SIZE * 4);
+        src_img[i] = aligned_alloc(1024, IMG_SIZE * IMG_SIZE * 4);
     }
     //uint8_t dest_img[2][MAX_IMGS][512 * 512 * 4];
-    uint8_t** dest_img[2];
+    uint8_t** dest_img[3];
     dest_img[0] = malloc(MAX_IMGS * sizeof(uint8_t*));
     dest_img[1] = malloc(MAX_IMGS * sizeof(uint8_t*));
+    dest_img[2] = malloc(MAX_IMGS * sizeof(uint8_t*));
     for(int i = 0; i < MAX_IMGS; i++) {
-        dest_img[0][i] = malloc(IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
-        dest_img[1][i] = malloc(IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
+        dest_img[0][i] = aligned_alloc(1024, IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
+        dest_img[1][i] = aligned_alloc(1024, IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
+        dest_img[2][i] = aligned_alloc(1024, IMG_SIZE / 2 * IMG_SIZE / 2 * 4);
     }
     assert(src_img != NULL && dest_img != NULL);
 
@@ -265,26 +267,35 @@ bool test_resize_half() {
 
     clock_t start = clock();
     for(int i = 0; i < MAX_IMGS; i++) {
-        resize_half_c(dest_img[0][i], src_img[i], IMG_SIZE, IMG_SIZE);
-    }
-    clock_t elapsed_c = clock() - start;
-
-    start = clock();
-    for(int i = 0; i < MAX_IMGS; i++) {
         resize_half_intrin(dest_img[1][i], src_img[i], IMG_SIZE, IMG_SIZE);
     }
     clock_t elapsed_intrin = clock() - start;
+
+    start = clock();
+    for(int i = 0; i < MAX_IMGS; i++) {
+        resize_half_intrin_new(dest_img[2][i], src_img[i], IMG_SIZE, IMG_SIZE);
+    }
+    clock_t elapsed_intrin_new = clock() - start;
+
+    start = clock();
+    for(int i = 0; i < MAX_IMGS; i++) {
+        resize_half_c(dest_img[0][i], src_img[i], IMG_SIZE, IMG_SIZE);
+    }
+    clock_t elapsed_c = clock() - start;
 
     bool passed = true;
     for(int i = 0; i < MAX_IMGS; i++) {
         for(int y = 0; y < IMG_SIZE / 2; y++) {
             for(int x = 0; x < IMG_SIZE / 2; x++) {
                 bool did_pass = true;
+                bool did_pass_new = true;
                 for(int c = 0; c < 4; c++) {
                     did_pass = (abs(dest_img[0][i][y * IMG_SIZE / 2 * 4 + x * 4 + c] -
                                 dest_img[1][i][y * IMG_SIZE / 2 * 4 + x * 4 + c]) <= 1);
+                    did_pass_new = (abs(dest_img[0][i][y * IMG_SIZE / 2 * 4 + x * 4 + c] -
+                                    dest_img[2][i][y * IMG_SIZE / 2 * 4 + x * 4 + c]) <= 1);
                 }
-                passed = passed & did_pass;
+                passed = passed && did_pass && did_pass_new;
             }
         }
     }
@@ -292,13 +303,16 @@ bool test_resize_half() {
         free(src_img[i]);
         free(dest_img[0][i]);
         free(dest_img[1][i]);
+        free(dest_img[2][i]);
     }
     free(src_img);
     free(dest_img[0]);
     free(dest_img[1]);
+    free(dest_img[2]);
 
     printf("resize_half elapsed time:\n");
     printf("intrin = %ld, %.3fx faster than C\n", elapsed_intrin, (float) elapsed_c / (float) elapsed_intrin);
+    printf("intrin new = %ld, %.3fx faster than C\n", elapsed_intrin_new, (float) elapsed_c / (float) elapsed_intrin_new);
     printf("C = %ld\n", elapsed_c);
 
     printf("resize_half test: %s\n", passed ? "passed" : ERR("FAILED"));
@@ -335,6 +349,8 @@ bool test_resize_half() {
         fwrite(pandu_dest + i * 4, 1, 3, out);
     }
     fclose(out);
+    free(pandu);
+    free(pandu_dest);
 
     return passed;
 }
